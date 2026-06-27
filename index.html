@@ -183,11 +183,12 @@
             rootMargin: "0px 0px -20px 0px"
         };
 
-        const appearanceObserver = new IntersectionObserver((entries, observer) => {
+        conswt appearanceObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('visible');
-                    observer.unobserve(entry.target); // Hiện xong thì ngừng theo dõi để mượt máy
+                } else {
+                    entry.target.classList.remove('visible');
                 }
             });
         }, observerOptions);
