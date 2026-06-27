@@ -1,29 +1,30 @@
-<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Giao diện Website Slider - Bảo Mật</title>
+    <title>Danh Sách Ảnh Cuộn Nổi & Xem Toàn Màn Hình</title>
 </head>
 <body>
 
-    <div class="slider-container">
-        <div class="slider">
-            <div class="slide">
-                <img src="https://i.postimg.cc/fy1khZSF/IMG-20260613-134234.jpg" alt="Anh1">
-            </div>
-            <div class="slide">
-                <img src="https://i.postimg.cc/yYw3MhFm/IMG-20260613-134048.jpg" alt="Anh2">
-            </div>
-            <div class="slide">
-                <img src="https://i.postimg.cc/3JWg5JVV/IMG-20260613-134045.jpg" alt="Anh3">
-            </div>
-            <div class="slide">
-                <img src="https://i.postimg.cc/N00yTNYh/IMG-20260613-134238.jpg" alt="Anh4">
-            </div>
+    <div class="image-list-container">
+        <div class="image-item">
+            <img src="https://i.postimg.cc/fy1khZSF/IMG-20260613-134234.jpg" alt="Anh1">
         </div>
-        
-        <div class="dots-container"></div>
+        <div class="image-item">
+            <img src="https://i.postimg.cc/yYw3MhFm/IMG-20260613-134048.jpg" alt="Anh2">
+        </div>
+        <div class="image-item">
+            <img src="https://i.postimg.cc/3JWg5JVV/IMG-20260613-134045.jpg" alt="Anh3">
+        </div>
+        <div class="image-item">
+            <img src="https://i.postimg.cc/N00yTNYh/IMG-20260613-134238.jpg" alt="Anh4">
+        </div>
+    </div>
+
+    <div id="imageModal" class="modal-overlay">
+        <span class="close-btn">&times;</span>
+        <img id="modalImg" class="modal-content" alt="Ảnh phóng to">
     </div>
 
     <style>
@@ -32,134 +33,188 @@
             padding: 0;
             box-sizing: border-box;
             
-            /* [BẢO MẬT] Chống bôi đen, chọn văn bản trên toàn trang web */
-            -webkit-user-select: none; /* Safari/Chrome trên điện thoại */
-            -moz-user-select: none;    /* Firefox */
-            -ms-user-select: none;     /* IE/Edge */
-            user-select: none;         /* Chuẩn chung */
+            /* [BẢO MẬT] Tuyệt đối chống bôi đen văn bản */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
 
         body {
             background-color: #f5f5f5;
-            padding: 20px;
+            padding: 20px 15px;
+            font-family: Arial, sans-serif;
         }
 
-        .slider-container {
-            position: relative;
+        .image-list-container {
             max-width: 500px;
             margin: 0 auto;
-            overflow: hidden;
-            border-radius: 16px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .slider {
             display: flex;
-            transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+            flex-direction: column;
+            gap: 25px; /* Khoảng cách giữa các ảnh */
         }
 
-        .slide {
-            min-width: 100%;
+        /* --- SỬA HIỆU ỨNG: Cấu hình xuất hiện từ từ rõ ràng hơn --- */
+        .image-item {
+            width: 100%;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            cursor: pointer; /* Hiển thị ngón tay khi di chuột vào báo hiệu bấm được */
+            
+            opacity: 0; /* Ban đầu ẩn hoàn toàn */
+            transform: translateY(70px); /* Đẩy sâu xuống dưới 70px để khi nổi lên nhìn rõ hơn */
+            
+            /* Tăng thời gian chuyển động lên 1.2 giây để hiệu ứng "từ từ nổi lên" chạy siêu mượt */
+            transition: opacity 1.2s cubic-bezier(0.215, 0.610, 0.355, 1), 
+                        transform 1.2s cubic-bezier(0.215, 0.610, 0.355, 1);
         }
 
-        .slide img {
+        /* Khi ảnh lọt vào màn hình, class này sẽ được thêm vào để kích hoạt hiệu ứng */
+        .image-item.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .image-item img {
             width: 100%;
             display: block;
             object-fit: cover;
             
-            /* [BẢO MẬT] Chống nhấn giữ lâu để tải/lưu ảnh trên điện thoại */
+            /* [BẢO MẬT] Chống nhấn giữ tải ảnh */
             -webkit-touch-callout: none;
             -webkit-user-drag: none;
             user-drag: none;
         }
 
-        .dots-container {
-            position: absolute;
-            bottom: 12px;
+        /* --- CSS CHO PHẦN PHÓNG TO ẢNH (MODAL LIGHTBOX) --- */
+        .modal-overlay {
+            display: none; /* Mặc định ẩn */
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            text-align: center;
-            z-index: 5;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.92); /* Nền đen mờ bao phủ */
+            z-index: 9999; /* Luôn nằm trên cùng tất cả các phần tử khác */
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
-        .dot {
+        /* Khi kích hoạt hiện khung xem ảnh */
+        .modal-overlay.show {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            max-width: 95%;
+            max-height: 85%;
+            border-radius: 8px;
+            box-shadow: 0 4px 25px rgba(255, 255, 255, 0.15);
+            animation: zoomIn 0.3s ease; /* Hiệu ứng ảnh to dần ra khi bấm */
+            
+            /* [BẢO MẬT] Chống nhấn giữ lấy ảnh ngay cả khi đang xem phóng to */
+            -webkit-touch-callout: none;
+            -webkit-user-drag: none;
+            user-drag: none;
+        }
+
+        /* Nút bấm đóng khung ảnh (Dấu X) */
+        .close-btn {
+            position: absolute;
+            top: 25px;
+            right: 30px;
+            color: #ffffff;
+            font-size: 40px;
+            font-weight: bold;
             cursor: pointer;
-            height: 8px;
-            width: 8px;
-            margin: 0 5px;
-            background-color: rgba(255, 255, 255, 0.4);
-            border-radius: 50%;
-            display: inline-block;
-            transition: all 0.3s ease;
         }
 
-        .dot.active, .dot:hover {
-            background-color: #ffffff;
-            width: 20px; 
-            border-radius: 4px;
+        /* Hiệu ứng phóng to nhẹ cho ảnh modal */
+        @keyframes zoomIn {
+            from { transform: scale(0.8); }
+            to { transform: scale(1); }
         }
     </style>
 
     <script>
-        // --- CƠ CHẾ CHẠY SLIDER TỰ ĐỘNG SINH NÚT ---
-        let currentIndex = 0;
-        const slider = document.querySelector('.slider');
-        const slides = document.querySelectorAll('.slide');
-        const dotsContainer = document.querySelector('.dots-container');
+        // --- 1. XỬ LÝ HIỆU ỨNG CUỘN ĐẾN ĐÂU NỔI TỪ TỪ LÊN ĐẾN ĐÓ ---
+        const items = document.querySelectorAll('.image-item');
 
-        slides.forEach((slide, index) => {
-            const dot = document.createElement('span');
-            dot.classList.add('dot');
-            if (index === 0) dot.classList.add('active');
-            
-            dot.addEventListener('click', () => {
-                currentIndex = index;
-                showSlide(currentIndex);
+        const observerOptions = {
+            root: null,
+            threshold: 0.05, // Chỉ cần 5% diện tích ảnh nhô vào màn hình là lập tức kích hoạt nổi lên
+            rootMargin: "0px 0px -20px 0px"
+        };
+
+        const appearanceObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target); // Hiện xong thì ngừng theo dõi để mượt máy
+                }
             });
-            
-            dotsContainer.appendChild(dot);
+        }, observerOptions);
+
+        items.forEach(item => {
+            appearanceObserver.observe(item);
         });
 
-        const dots = document.querySelectorAll('.dot');
 
-        function showSlide(index) {
-            if (index >= slides.length) currentIndex = 0;
-            if (index < 0) currentIndex = slides.length - 1;
-            slider.style.transform = `translateX(-${currentIndex * 100}%)`;
-            
-            dots.forEach(dot => dot.classList.remove('active'));
-            if (dots[currentIndex]) {
-                dots[currentIndex].classList.add('active');
+        // --- 2. XỬ LÝ ẤN VÀO XEM ĐƯỢC ẢNH LUÔN (PHÓNG TO TOÀN MÀN HÌNH) ---
+        const modal = document.getElementById('imageModal');
+        const modalImg = document.getElementById('modalImg');
+        const closeBtn = document.querySelector('.close-btn');
+
+        // Lắng nghe sự kiện click trên từng khối ảnh
+        items.forEach(item => {
+            const img = item.querySelector('img');
+            item.addEventListener('click', () => {
+                modal.style.display = 'flex';
+                // Đợi 10ms để trình duyệt kịp render rồi mới thêm class hiệu ứng mượt
+                setTimeout(() => {
+                    modal.classList.add('show');
+                }, 10);
+                modalImg.src = img.src; // Copy đường link ảnh nhỏ bỏ vào khung ảnh to
+            });
+        });
+
+        // Hàm đóng khung ảnh phóng to
+        function closeModal() {
+            modal.classList.remove('show');
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 300); // Đợi hiệu ứng mờ dần chạy xong rồi ẩn hẳn
+        }
+
+        // Ấn vào dấu X để đóng ảnh
+        closeBtn.addEventListener('click', closeModal);
+
+        // Hoặc ấn vào vùng nền đen bất kỳ bên ngoài ảnh cũng tự đóng ảnh luôn cho tiện
+        modal.addEventListener('click', (event) => {
+            if (event.target === modal) {
+                closeModal();
             }
-        }
-
-        function nextSlide() {
-            currentIndex++;
-            showSlide(currentIndex);
-        }
-
-        setInterval(nextSlide, 3000);
+        });
 
 
-        // --- [BẢO MẬT] CÁC HÀM CHẶN COPPY VÀ KIỂM TRA PHẦN TỬ ---
-
-        // 1. Chặn menu chuột phải (máy tính) và chặn nhấn giữ hiện menu lưu ảnh (điện thoại)
+        // --- 3. [BẢO MẬT] HỆ THỐNG CHỐNG COPY TUYỆT ĐỐI ---
         document.addEventListener('contextmenu', (event) => {
             event.preventDefault();
         });
 
-        // 2. Chặn hành động kéo thả hình ảnh ra chỗ khác để lưu
         document.addEventListener('dragstart', (event) => {
             event.preventDefault();
         });
 
-        // 3. Chặn các phím tắt sao chép phổ biến nếu người dùng xem bằng máy tính
         document.addEventListener('keydown', (event) => {
-            // Chặn Ctrl+C (Copy), Ctrl+U (Xem nguồn trang), Ctrl+S (Lưu trang), Ctrl+A (Chọn tất cả)
             if (event.ctrlKey && (event.key === 'c' || event.key === 'u' || event.key === 's' || event.key === 'a' || event.key === 'C' || event.key === 'U' || event.key === 'S' || event.key === 'A')) {
                 event.preventDefault();
                 return false;
             }
-            // Chặn phím F12 (Mở bộ công cụ nhà phát triển để xem code)
             if (event.key === 'F12') {
                 event.preventDefault();
                 return false;
@@ -168,98 +223,3 @@
     </script>
 </body>
 </html>
-<style>* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    background-color: #f5f5f5;
-    padding: 20px;
-}
-
-/* Khung viền cố định bên ngoài */
-.slider-container {
-    position: relative;
-    max-width: 500px; /* Giới hạn chiều rộng theo chuẩn giao diện mobile như video */
-    margin: 0 auto;
-    overflow: hidden;
-    border-radius: 16px; /* Bo góc tròn mịn cho khung chứa */
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-}
-
-/* Thanh dài xếp các slide nối đuôi nhau */
-.slider {
-    display: flex;
-    transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1); /* Hiệu ứng lướt mượt */
-}
-
-/* Mỗi slide chiếm trọn vẹn 100% không gian hiển thị */
-.slide {
-    min-width: 100%;
-}
-
-.slide img {
-    width: 100%;
-    display: block;
-    object-fit: cover;
-}
-
-/* Căn chỉnh vị trí các nút chấm tròn */
-.dots-container {
-    position: absolute;
-    bottom: 12px;
-    width: 100%;
-    text-align: center;
-    z-index: 5;
-}
-
-.dot {
-    cursor: pointer;
-    height: 8px;
-    width: 8px;
-    margin: 0 5px;
-    background-color: rgba(255, 255, 255, 0.4);
-    border-radius: 50%;
-    display: inline-block;
-    transition: all 0.3s ease;
-}
-
-/* Hiệu ứng chuyển hình thanh dài khi chấm đó được kích hoạt */
-.dot.active, .dot:hover {
-    background-color: #ffffff;
-    width: 20px; 
-    border-radius: 4px;
-}
-</style><script>let currentIndex = 0;
-const slides = document.querySelectorAll('.slide');
-const dots = document.querySelectorAll('.dot');
-const slider = document.querySelector('.slider');
-
-function showSlide(index) {
-    if (index >= slides.length) currentIndex = 0;
-    if (index < 0) currentIndex = slides.length - 1;
-    
-    // Tịnh tiến thanh slider sang trái dựa trên phần trăm vị trí ảnh
-    slider.style.transform = `translateX(-${currentIndex * 100}%)`;
-    
-    // Khởi tạo lại trạng thái hiển thị của các nút chấm
-    dots.forEach(dot => dot.classList.remove('active'));
-    dots[currentIndex].classList.add('active');
-}
-
-function nextSlide() {
-    currentIndex++;
-    showSlide(currentIndex);
-}
-
-// Cho phép người dùng click trực tiếp vào chấm tròn để chuyển slide nhanh
-function currentSlide(index) {
-    currentIndex = index;
-    showSlide(currentIndex);
-}
-
-// Cứ mỗi 3 giây (3000ms) tự động đổi ảnh một lần
-setInterval(nextSlide, 3000);
-</script>
