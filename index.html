@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giao diện Website Slider - Bảo Mật</title>
+</head>
+<body>
+
+    <div class="slider-container">
+        <div class="slider">
+            <div class="slide">
+                <img src="https://i.postimg.cc/fy1khZSF/IMG-20260613-134234.jpg" alt="Anh1">
+            </div>
+            <div class="slide">
+                <img src="https://i.postimg.cc/yYw3MhFm/IMG-20260613-134048.jpg" alt="Anh2">
+            </div>
+            <div class="slide">
+                <img src="https://i.postimg.cc/3JWg5JVV/IMG-20260613-134045.jpg" alt="Anh3">
+            </div>
+            <div class="slide">
+                <img src="https://i.postimg.cc/N00yTNYh/IMG-20260613-134238.jpg" alt="Anh4">
+            </div>
+        </div>
+        
+        <div class="dots-container"></div>
+    </div>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            
+            /* [BẢO MẬT] Chống bôi đen, chọn văn bản trên toàn trang web */
+            -webkit-user-select: none; /* Safari/Chrome trên điện thoại */
+            -moz-user-select: none;    /* Firefox */
+            -ms-user-select: none;     /* IE/Edge */
+            user-select: none;         /* Chuẩn chung */
+        }
+
+        body {
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .slider-container {
+            position: relative;
+            max-width: 500px;
+            margin: 0 auto;
+            overflow: hidden;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .slider {
+            display: flex;
+            transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .slide {
+            min-width: 100%;
+        }
+
+        .slide img {
+            width: 100%;
+            display: block;
+            object-fit: cover;
+            
+            /* [BẢO MẬT] Chống nhấn giữ lâu để tải/lưu ảnh trên điện thoại */
+            -webkit-touch-callout: none;
+            -webkit-user-drag: none;
+            user-drag: none;
+        }
+
+        .dots-container {
+            position: absolute;
+            bottom: 12px;
+            width: 100%;
+            text-align: center;
+            z-index: 5;
+        }
+
+        .dot {
+            cursor: pointer;
+            height: 8px;
+            width: 8px;
+            margin: 0 5px;
+            background-color: rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+
+        .dot.active, .dot:hover {
+            background-color: #ffffff;
+            width: 20px; 
+            border-radius: 4px;
+        }
+    </style>
+
+    <script>
+        // --- CƠ CHẾ CHẠY SLIDER TỰ ĐỘNG SINH NÚT ---
+        let currentIndex = 0;
+        const slider = document.querySelector('.slider');
+        const slides = document.querySelectorAll('.slide');
+        const dotsContainer = document.querySelector('.dots-container');
+
+        slides.forEach((slide, index) => {
+            const dot = document.createElement('span');
+            dot.classList.add('dot');
+            if (index === 0) dot.classList.add('active');
+            
+            dot.addEventListener('click', () => {
+                currentIndex = index;
+                showSlide(currentIndex);
+            });
+            
+            dotsContainer.appendChild(dot);
+        });
+
+        const dots = document.querySelectorAll('.dot');
+
+        function showSlide(index) {
+            if (index >= slides.length) currentIndex = 0;
+            if (index < 0) currentIndex = slides.length - 1;
+            slider.style.transform = `translateX(-${currentIndex * 100}%)`;
+            
+            dots.forEach(dot => dot.classList.remove('active'));
+            if (dots[currentIndex]) {
+                dots[currentIndex].classList.add('active');
+            }
+        }
+
+        function nextSlide() {
+            currentIndex++;
+            showSlide(currentIndex);
+        }
+
+        setInterval(nextSlide, 3000);
+
+
+        // --- [BẢO MẬT] CÁC HÀM CHẶN COPPY VÀ KIỂM TRA PHẦN TỬ ---
+
+        // 1. Chặn menu chuột phải (máy tính) và chặn nhấn giữ hiện menu lưu ảnh (điện thoại)
+        document.addEventListener('contextmenu', (event) => {
+            event.preventDefault();
+        });
+
+        // 2. Chặn hành động kéo thả hình ảnh ra chỗ khác để lưu
+        document.addEventListener('dragstart', (event) => {
+            event.preventDefault();
+        });
+
+        // 3. Chặn các phím tắt sao chép phổ biến nếu người dùng xem bằng máy tính
+        document.addEventListener('keydown', (event) => {
+            // Chặn Ctrl+C (Copy), Ctrl+U (Xem nguồn trang), Ctrl+S (Lưu trang), Ctrl+A (Chọn tất cả)
+            if (event.ctrlKey && (event.key === 'c' || event.key === 'u' || event.key === 's' || event.key === 'a' || event.key === 'C' || event.key === 'U' || event.key === 'S' || event.key === 'A')) {
+                event.preventDefault();
+                return false;
+            }
+            // Chặn phím F12 (Mở bộ công cụ nhà phát triển để xem code)
+            if (event.key === 'F12') {
+                event.preventDefault();
+                return false;
+            }
+        });
+    </script>
+</body>
+      </html>
+      
