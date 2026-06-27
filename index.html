@@ -99,8 +99,8 @@
             transform: translateY(70px); /* Đẩy sâu xuống dưới 70px để khi nổi lên nhìn rõ hơn */
             
             /* Tăng thời gian chuyển động lên 1.2 giây để hiệu ứng "từ từ nổi lên" chạy siêu mượt */
-            transition: opacity 2.2s cubic-bezier(0.215, 0.610, 0.355, 1), 
-                        transform 2.2s cubic-bezier(0.215, 0.610, 0.355, 1);
+            transition: opacity 1.2s cubic-bezier(0.215, 0.610, 0.355, 1), 
+                        transform 1.2s cubic-bezier(0.215, 0.610, 0.355, 1);
         }
 
         /* Khi ảnh lọt vào màn hình, class này sẽ được thêm vào để kích hoạt hiệu ứng */
@@ -183,7 +183,7 @@
             rootMargin: "0px 0px -20px 0px"
         };
 
-        conswt appearanceObserver = new IntersectionObserver((entries) => {
+        const appearanceObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('visible');
